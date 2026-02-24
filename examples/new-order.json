@@ -1,0 +1,7 @@
+{
+  "id": 42,
+  "orderItems": [
+    { "id": 1, "name": "Laptop", "quantity": 1, "price": 1299.99 },
+    { "id": 2, "name": "Dock", "quantity": 1, "price": 199.99 }
+  ]
+}

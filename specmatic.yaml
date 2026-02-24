@@ -1,0 +1,29 @@
+version: 2
+contracts:
+  - provides:
+      - specs:
+          - ./spec/spec.yaml
+        specType: asyncapi
+        config:
+          servers:
+            - host: ibm-mq
+              protocol: ibmmq
+              adminCredentials:
+                queueManager: QM1
+                channel: DEV.ADMIN.SVRCONN
+                connName: ibm-mq(1414)
+                username: admin
+                password: adminpassw0rd
+              client:
+                producer:
+                  queueManager: QM1
+                  channel: DEV.APP.SVRCONN
+                  destination.type: queue
+                  username: app
+                  password: passw0rd
+                consumer:
+                  queueManager: QM1
+                  channel: DEV.APP.SVRCONN
+                  destination.type: queue
+                  username: app
+                  password: passw0rd

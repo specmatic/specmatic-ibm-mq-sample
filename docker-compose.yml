@@ -1,0 +1,20 @@
+services:
+  ibm-mq:
+    image: icr.io/ibm-messaging/mq:latest
+    platform: ${IBM_MQ_PLATFORM:-linux/amd64}
+    container_name: specmatic-ibm-mq
+    ports:
+      - "1415:1414"
+      - "9444:9443"
+    environment:
+      LICENSE: accept
+      MQ_QMGR_NAME: QM1
+      MQ_APP_PASSWORD: passw0rd
+      MQ_ADMIN_PASSWORD: adminpassw0rd
+    volumes:
+      - ./docker/mq/20-queues.mqsc:/etc/mqm/20-queues.mqsc:ro
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo 'display qmgr' | runmqsc QM1 >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20

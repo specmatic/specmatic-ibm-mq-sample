@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: specmatic-ibm-mq-sample
+  main:
+    banner-mode: "off"
+  jms:
+    listener:
+      acknowledge-mode: auto
+
+app:
+  mq:
+    host: localhost
+    port: 1415
+    queue-manager: QM1
+    channel: DEV.APP.SVRCONN
+    username: app
+    password: passw0rd
+    receive-timeout-ms: 5000
+  queues:
+    new-orders: new.orders
+    wip-orders: wip.orders
+    cancel-requests: to.be.cancelled.orders
+    cancelled-orders: cancelled.orders
+    accepted-orders: accepted.orders
+    out-for-delivery-orders: out.for.delivery.orders
+  listeners:
+    wip-orders:
+      enabled: false
+  smoke-test:
+    enabled: false

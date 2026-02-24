@@ -1,0 +1,57 @@
+services:
+  ibm-mq:
+    image: icr.io/ibm-messaging/mq:latest
+    platform: ${IBM_MQ_PLATFORM:-linux/amd64}
+    container_name: ibm-mq-broker
+    ports:
+      - "1415:1414"
+      - "9444:9443"
+    environment:
+      LICENSE: accept
+      MQ_QMGR_NAME: QM1
+      MQ_APP_PASSWORD: passw0rd
+      MQ_ADMIN_PASSWORD: adminpassw0rd
+    volumes:
+      - ./docker/mq/20-queues.mqsc:/etc/mqm/20-queues.mqsc:ro
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo 'display qmgr' | runmqsc QM1 >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sut
+    depends_on:
+      ibm-mq:
+        condition: service_healthy
+    environment:
+      APP_MQ_HOST: ibm-mq
+      APP_MQ_PORT: "1414"
+      APP_MQ_QUEUE_MANAGER: QM1
+      APP_MQ_CHANNEL: DEV.APP.SVRCONN
+      APP_MQ_USERNAME: app
+      APP_MQ_PASSWORD: passw0rd
+    healthcheck:
+      test: ["CMD-SHELL", "grep -qa 'app.jar' /proc/1/cmdline"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  specmatic-test:
+    image: specmatic/enterprise:latest
+    container_name: specmatic-test
+    working_dir: /usr/src/app
+    command: ["test"]
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      ibm-mq:
+        condition: service_healthy
+      app:
+        condition: service_healthy
+    restart: "no"
