@@ -25,72 +25,6 @@ Message payloads are JSON, and the optional header `orderCorrelationId` is prese
 - Maven 3.9+
 - Docker Desktop / Docker Engine with Compose
 
-## Run locally
-
-1. Start IBM MQ:
-
-```bash
-docker compose up -d
-```
-
-Apple Silicon (`arm64`) note:
-
-- IBM MQ's official container is currently `amd64` only.
-- This project sets `platform: linux/amd64` in `docker-compose.yml`, so Docker Desktop runs it using emulation.
-- If Docker still fails on macOS ARM, enable Docker Desktop x86/amd64 emulation (Rosetta/QEMU support), then retry.
-
-2. Start the app:
-
-```bash
-mvn spring-boot:run
-```
-
-The app starts an HTTP server on port `8080` and connects to IBM MQ at `localhost:1415` (matching `spec/spec.yaml`).
-
-## Easy smoke test (recommended)
-
-Run this in a second terminal while the app is running:
-
-```bash
-mvn spring-boot:run -Dspring-boot.run.arguments="--app.smoke-test.enabled=true --spring.jms.listener.auto-startup=false"
-```
-
-Shortcut scripts:
-
-- macOS/Linux: `sh scripts/smoke-test.sh`
-- Windows PowerShell: `powershell -ExecutionPolicy Bypass -File scripts/smoke-test.ps1`
-
-What it does:
-
-- Publishes a sample `new-orders` message
-- Waits for `accepted-orders`
-- Publishes a sample cancel request
-- Waits for `cancelled-orders`
-- Publishes an `out-for-delivery-orders` message
-- Exits with status `0` on success / `1` on failure
-
-## Unit tests
-
-```bash
-mvn test
-```
-
-These test the core message-processing logic without needing IBM MQ.
-
-## Queue and connection defaults
-
-- Queue manager: `QM1`
-- Channel: `DEV.APP.SVRCONN`
-- Username: `app`
-- Password: `passw0rd`
-- Host port mapping: `1415 -> 1414` (container MQ listener)
-
-## Notes
-
-- IBM MQ container startup can take a little time on first run.
-- On ARM machines (for example Apple Silicon Macs), IBM MQ runs under `amd64` emulation in Docker.
-- The sample uses simple logging and an in-memory status store; replace with a database if you need persistence.
-
 ## Architecture
 
 - Spring Boot app with JMS listeners for `new.orders`, `to.be.cancelled.orders`, and `out.for.delivery.orders`
@@ -150,18 +84,70 @@ Cleanup (stop/remove containers and volumes):
 docker compose up -d
 ```
 
-2. Run the app:
+Apple Silicon (`arm64`) note:
+
+- IBM MQ's official container is currently `amd64` only.
+- This project sets `platform: linux/amd64` in `docker-compose.yml`, so Docker Desktop runs it using emulation.
+- If Docker still fails on macOS ARM, enable Docker Desktop x86/amd64 emulation (Rosetta/QEMU support), then retry.
+
+2. Start the app:
 
 ```bash
 mvn spring-boot:run
 ```
 
+The app starts an HTTP server on port `8080` and connects to IBM MQ at `localhost:1415` (matching `spec/spec.yaml`).
+
 3. Test the API:
 
 ```bash
-curl -i -X PUT http://localhost:8080/orders \\
-  -H 'Content-Type: application/json' \\
-  -d '{\"id\":123,\"status\":\"ACCEPTED\",\"timestamp\":\"2025-04-12T14:30:00Z\"}'
+curl -i -X PUT http://localhost:8080/orders \
+  -H 'Content-Type: application/json' \
+  -d '{"id":123,"status":"ACCEPTED","timestamp":"2025-04-12T14:30:00Z"}'
 
 curl -i http://localhost:8080/orders/123?status=ACCEPTED
 ```
+
+## Easy smoke test (recommended)
+
+Run this in a second terminal while the app is running:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.arguments="--app.smoke-test.enabled=true --spring.jms.listener.auto-startup=false"
+```
+
+Shortcut scripts:
+
+- macOS/Linux: `sh scripts/smoke-test.sh`
+- Windows PowerShell: `powershell -ExecutionPolicy Bypass -File scripts/smoke-test.ps1`
+
+What it does:
+
+- Publishes a sample `new-orders` message
+- Waits for `accepted-orders`
+- Publishes a sample cancel request
+- Waits for `cancelled-orders`
+- Publishes an `out-for-delivery-orders` message
+- Exits with status `0` on success / `1` on failure
+
+## Unit tests
+
+```bash
+mvn test
+```
+
+These test the core message-processing logic without needing IBM MQ.
+
+## Queue and connection defaults
+
+- Queue manager: `QM1`
+- Channel: `DEV.APP.SVRCONN`
+- Username: `app`
+- Password: `passw0rd`
+- Host port mapping: `1415 -> 1414` (container MQ listener)
+
+## Notes
+
+- IBM MQ container startup can take a little time on first run.
+- On ARM machines (for example Apple Silicon Macs), IBM MQ runs under `amd64` emulation in Docker.
+- The sample uses simple logging and an in-memory status store; replace with a database if you need persistence.
