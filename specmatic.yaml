@@ -1,29 +1,55 @@
-version: 2
-contracts:
-  - provides:
-      - specs:
-          - ./spec/spec.yaml
-        specType: asyncapi
-        config:
-          servers:
-            - host: ibm-mq
-              protocol: ibmmq
-              adminCredentials:
-                queueManager: QM1
-                channel: DEV.ADMIN.SVRCONN
-                connName: ibm-mq(1414)
-                username: admin
-                password: adminpassw0rd
-              client:
-                producer:
-                  queueManager: QM1
-                  channel: DEV.APP.SVRCONN
-                  destination.type: queue
-                  username: app
-                  password: passw0rd
-                consumer:
-                  queueManager: QM1
-                  channel: DEV.APP.SVRCONN
-                  destination.type: queue
-                  username: app
-                  password: passw0rd
+version: 3
+systemUnderTest:
+  service:
+    $ref: "#/components/services/orderService"
+    runOptions:
+      $ref: "#/components/runOptions/orderServiceTest"
+    data:
+      examples:
+        - directories:
+            - contract-testing-examples
+components:
+  sources:
+    localFilesystem:
+      filesystem:
+        directory: "."
+  services:
+    orderService:
+      description: IBM MQ AsyncAPI Service
+      definitions:
+        - definition:
+            source:
+              $ref: "#/components/sources/localFilesystem"
+            specs:
+              - spec:
+                  id: asyncApiSpec
+                  path: ./spec/spec.yaml
+  runOptions:
+    orderServiceTest:
+      asyncapi:
+        type: test
+        specs:
+          - spec:
+              id: asyncApiSpec
+              servers:
+                - host: ibm-mq
+                  protocol: ibmmq
+                  adminCredentials:
+                    queueManager: QM1
+                    channel: DEV.ADMIN.SVRCONN
+                    connName: ibm-mq(1414)
+                    username: admin
+                    password: adminpassw0rd
+                  client:
+                    producer:
+                      queueManager: QM1
+                      channel: DEV.APP.SVRCONN
+                      destination.type: queue
+                      username: app
+                      password: passw0rd
+                    consumer:
+                      queueManager: QM1
+                      channel: DEV.APP.SVRCONN
+                      destination.type: queue
+                      username: app
+                      password: passw0rd
