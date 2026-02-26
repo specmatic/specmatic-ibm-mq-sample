@@ -1,0 +1,20 @@
+name: Contract Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run contract tests
+        run: ./scripts/run-contract-tests.sh
+
+      - name: Cleanup containers
+        if: always()
+        run: ./scripts/cleanup-contract-tests.sh
