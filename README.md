@@ -22,7 +22,7 @@ Message payloads are JSON, and the optional header `orderCorrelationId` is prese
 ## Prerequisites
 
 - Java 21
-- Maven 3.9+
+- Gradle (or use the included Gradle wrapper)
 - Docker Desktop / Docker Engine with Compose
 
 ## Architecture
@@ -93,7 +93,7 @@ Apple Silicon (`arm64`) note:
 2. Start the app:
 
 ```bash
-mvn spring-boot:run
+./gradlew bootRun
 ```
 
 The app starts an HTTP server on port `8080` and connects to IBM MQ at `localhost:1415` (matching `spec/spec.yaml`).
@@ -113,7 +113,7 @@ curl -i http://localhost:8080/orders/123?status=ACCEPTED
 Run this in a second terminal while the app is running:
 
 ```bash
-mvn spring-boot:run -Dspring-boot.run.arguments="--app.smoke-test.enabled=true --spring.jms.listener.auto-startup=false"
+./gradlew bootRun --args="--app.smoke-test.enabled=true --spring.jms.listener.auto-startup=false"
 ```
 
 Shortcut scripts:
@@ -133,7 +133,7 @@ What it does:
 ## Unit tests
 
 ```bash
-mvn test
+./gradlew test
 ```
 
 These test the core message-processing logic without needing IBM MQ.

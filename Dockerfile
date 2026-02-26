@@ -1,15 +1,16 @@
-FROM maven:3.9.9-eclipse-temurin-17 AS build
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /workspace
 
-COPY pom.xml ./
-RUN mvn -q -DskipTests dependency:go-offline
+COPY gradlew gradlew.bat settings.gradle build.gradle ./
+COPY gradle/wrapper gradle/wrapper
+RUN ./gradlew -q -Dorg.gradle.daemon=false dependencies
 
 COPY src ./src
-RUN mvn -q -DskipTests package
+RUN ./gradlew -q -Dorg.gradle.daemon=false bootJar -x test
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-COPY --from=build /workspace/target/*.jar app.jar
+COPY --from=build /workspace/build/libs/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
