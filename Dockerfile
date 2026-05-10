@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.19_10-jdk AS build
+FROM eclipse-temurin:25.0.3_9-jdk AS build
 WORKDIR /workspace
 
 COPY gradlew gradlew.bat settings.gradle build.gradle ./
@@ -8,7 +8,7 @@ RUN ./gradlew -q -Dorg.gradle.daemon=false dependencies
 COPY src ./src
 RUN ./gradlew -q -Dorg.gradle.daemon=false bootJar -x test
 
-FROM eclipse-temurin:17.0.19_10-jre
+FROM eclipse-temurin:25.0.3_9-jre
 WORKDIR /app
 
 COPY --from=build /workspace/build/libs/*.jar app.jar
