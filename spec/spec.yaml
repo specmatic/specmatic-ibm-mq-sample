@@ -90,7 +90,7 @@ components:
     OrderRequest:
       name: "OrderRequest"
       title: "An order request"
-      contentType: "application/json"
+      contentType: "application/xml"
       headers:
         type: "object"
         properties:
@@ -99,35 +99,13 @@ components:
             description: "Unique identifier for the request"
         additionalProperties: true
       payload:
-        type: "object"
-        required:
-        - "id"
-        - "orderItems"
-        properties:
-          id:
-            type: "integer"
-          orderItems:
-            type: "array"
-            items:
-              type: "object"
-              properties:
-                id:
-                  type: "integer"
-                name:
-                  type: "string"
-                quantity:
-                  type: "integer"
-                price:
-                  type: "number"
-              required:
-              - "id"
-              - "name"
-              - "quantity"
-              - "price"
+        schemaFormat: "application/xml"
+        schema:
+          $ref: "./order-request.xsd#OrderRequest"
     Order:
       name: "OrderToProcess"
       title: "An order that needs to be processed"
-      contentType: "application/json"
+      contentType: "application/xml"
       headers:
         type: "object"
         properties:
@@ -136,18 +114,9 @@ components:
             description: "Unique identifier for the request"
         additionalProperties: true
       payload:
-        type: "object"
-        required:
-        - "id"
-        - "totalAmount"
-        - "status"
-        properties:
-          id:
-            type: "integer"
-          totalAmount:
-            type: "number"
-          status:
-            $ref: "#/components/messages/OrderStatus"
+        schemaFormat: "application/xml"
+        schema:
+          $ref: "./order-reply.xsd#Order"
     CancelOrderRequest:
       name: "CancelOrderRequest"
       title: "A cancel order request"

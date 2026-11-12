@@ -11,7 +11,7 @@ Queues from the spec are implemented as IBM MQ local queues:
 - `out.for.delivery.orders` -> consumes `OutForDelivery` and updates in-memory order status
 - `accepted.orders` -> published when the HTTP `PUT /orders` API is called
 
-Message payloads are JSON, and the optional header `orderCorrelationId` is preserved on produced messages.
+The `new.orders` request and `wip.orders` reply use XML. The request is described by `spec/order-request.xsd`, and the optional header `orderCorrelationId` is preserved on produced messages. Other sample queues remain JSON.
 
 ## Tech stack (why this is cross-platform)
 
@@ -64,6 +64,7 @@ Cleanup (stop/remove containers and volumes):
 ## What happens in the contract tests
 
 - Specmatic publishes a `new.orders` message and expects a `wip.orders` message.
+- The `new.orders` contract example is XML and is checked against the referenced XSD before the IBM MQ round trip.
 - Specmatic calls `PUT /orders` (before fixture) and expects an `accepted.orders` message with the same payload.
 - Specmatic publishes a `to.be.cancelled.orders` message and expects a `cancelled.orders` message.
 - Specmatic publishes an `out.for.delivery.orders` message and verifies order status via `GET /orders/{id}?status=SHIPPED` (after fixture).

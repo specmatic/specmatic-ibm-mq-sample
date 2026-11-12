@@ -21,6 +21,7 @@ public class OrderProcessingService {
   private static final Logger log = LoggerFactory.getLogger(OrderProcessingService.class);
 
   private final JsonService jsonService;
+  private final OrderXmlService orderXmlService;
   private final ValidationService validationService;
   private final MqPublisher publisher;
   private final AppProperties appProperties;
@@ -29,11 +30,13 @@ public class OrderProcessingService {
 
   public OrderProcessingService(
       JsonService jsonService,
+      OrderXmlService orderXmlService,
       ValidationService validationService,
       MqPublisher publisher,
       AppProperties appProperties,
       OrderStateStore orderStateStore) {
     this.jsonService = jsonService;
+    this.orderXmlService = orderXmlService;
     this.validationService = validationService;
     this.publisher = publisher;
     this.appProperties = appProperties;
@@ -41,13 +44,13 @@ public class OrderProcessingService {
   }
 
   public void onNewOrder(String payload, String correlationId) {
-    OrderRequest request = validationService.requireValid(jsonService.read(payload, OrderRequest.class));
+    OrderRequest request = validationService.requireValid(orderXmlService.readOrderRequest(payload));
     double totalAmount = request.orderItems().stream()
         .mapToDouble(item -> item.quantity() * item.price())
         .sum();
 
     Order order = validationService.requireValid(new Order(request.id(), totalAmount, OrderStatus.INITIATED));
-    publisher.publish(appProperties.queues().wipOrders(), jsonService.write(order), correlationId);
+    publisher.publish(appProperties.queues().wipOrders(), orderXmlService.writeOrder(order), correlationId);
     orderStateStore.setStatus(order.id(), order.status());
     log.info("Order {} initiated and published to {}", order.id(), appProperties.queues().wipOrders());
   }

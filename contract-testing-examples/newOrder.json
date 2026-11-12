@@ -1,36 +1,16 @@
 {
-  "id": "new-order",
-  "name": "NEW_ORDER",
+  "id": "new-order-xml",
+  "name": "NEW_ORDER_XML",
   "receive": {
     "topic": "new.orders",
-    "payload": {
-      "id": 10,
-      "orderItems": [
-        {
-          "id": 1,
-          "name": "Macbook",
-          "quantity": 1,
-          "price": 2000
-        },
-        {
-          "id": 2,
-          "name": "Iphone",
-          "quantity": 1,
-          "price": 1000
-        }
-      ]
-    },
+    "payload": "<OrderRequest xmlns=\"urn:specmatic:orders\"><id>10</id><orderItems><item><id>1</id><name>Macbook</name><quantity>1</quantity><price>2000</price></item><item><id>2</id><name>Iphone</name><quantity>1</quantity><price>1000</price></item></orderItems></OrderRequest>",
     "headers": {
       "orderCorrelationId": "12345"
     }
   },
   "send": {
     "topic": "wip.orders",
-    "payload": {
-      "id": 10,
-      "totalAmount": 3000,
-      "status": "INITIATED"
-    },
+    "payload": "<Order xmlns=\"urn:specmatic:orders\"><id>10</id><totalAmount>3000.0</totalAmount><status>INITIATED</status></Order>",
     "headers": {
       "orderCorrelationId": "12345"
     }
